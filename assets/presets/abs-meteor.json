@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "title": "abs-meteor",
+  "mask": [
+    -0.15,
+    -0.25,
+    -0.61
+  ],
+  "maskRange": [
+    -2,
+    2
+  ],
+  "N": 512,
+  "M": 512,
+  "wrap": false,
+  "mode": "mod",
+  "activation": "abs",
+  "activationParams": {
+    "slope": 1,
+    "freq": 6.283,
+    "phase": 0.0004,
+    "sin2Freq": 6.283,
+    "sin2Phase": 0.0004,
+    "sin3Freq": 6.283,
+    "sin3Phase": 0.0004,
+    "p": 0.571,
+    "tanhMult": 1,
+    "absSlope": 1.005,
+    "x2Coef": 1,
+    "x3Coef": 1,
+    "mu": 0,
+    "sigma": 1
+  },
+  "init": "impulse",
+  "seed": 591011,
+  "impulsePos": 0.358,
+  "nCells": 3,
+  "cmap": "binary",
+  "sonification": {
+    "hopScale": 0.5,
+    "normalize": true,
+    "sampleRate": 44100,
+    "rateFactor": 1,
+    "lengthMultiplier": 1
+  }
+}

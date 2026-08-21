@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "title": "sin3-fulgurite",
+  "mask": [
+    -1.234,
+    -0.013,
+    -1.573
+  ],
+  "maskRange": [
+    -5,
+    4
+  ],
+  "N": 512,
+  "M": 512,
+  "wrap": true,
+  "mode": "mod",
+  "activation": "sin3",
+  "activationParams": {
+    "slope": 2.264,
+    "freq": 12.207,
+    "phase": -1.1166,
+    "sin2Freq": 7.79,
+    "sin2Phase": 2.9294,
+    "sin3Freq": 1.152,
+    "sin3Phase": -1.9236,
+    "p": 0.755,
+    "tanhMult": 3.777,
+    "absSlope": -4.794,
+    "x2Coef": -1.685,
+    "x3Coef": 4.974,
+    "mu": -1.79,
+    "sigma": 0.256
+  },
+  "init": "impulse",
+  "seed": 973958,
+  "impulsePos": 0.207,
+  "nCells": 1,
+  "cmap": "binary",
+  "sonification": {
+    "hopScale": 0.5,
+    "normalize": true,
+    "sampleRate": 44100,
+    "rateFactor": 1,
+    "lengthMultiplier": 1
+  }
+}

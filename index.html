@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Neural Spectral Automata</title>
+  <link rel="stylesheet" href="css/style.css">
+</head>
+
+<body>
+
+<div id="helpOverlay">
+<div id="helpCard">
+  <div class="row" id="helpCardHeader" style="align-items:center; margin:0 0 10px 0;">
+    <h2 style="margin:0;">What am I looking at?</h2>
+    <div class="row checkrow" id="lightModeRow" style="margin:0; flex:0 0 auto;">
+      <input type="checkbox" id="lightModeChk" unchecked>
+      <label for="lightModeChk">light mode</label>
+    </div>
+    <button type="button" id="helpClose" title="Close">✕</button>
+  </div>
+  <p>Neural Spectral Automata is a web-tool that can be used to create 1-dimensional neural <a class="link" target="blank" href="https://en.wikipedia.org/wiki/Cellular_automaton">cellular automata</a> that are mapped to sound. An image is generated row by row using a simple set of rules, and the pixels in that image describe an evolving frequency spectrum over time. Although the rules are simple, surprisingly complex and <a class="link" target="_blank" href="https://en.wikipedia.org/wiki/Chaos_theory">chaotic</a> patterns emerge from them.</p>
+
+  <h3 style="margin:16px 0 6px 0; font-size:12.5px; text-transform:uppercase; letter-spacing:0.5px;">- Simple Rules</h3>
+  <p>It starts with a top row of cells, each valued from 0 to 1 (white to black). To grow the row underneath it, every cell goes through the same three steps: a <strong>mask convolution</strong>, an <strong>activation function</strong>, and a <strong>constraint</strong>. The mask is a row of three weights that slide over the cell being processed (center) and its two closest neighbors (left and right), which are multiplied by their matching weights and added together: <em>(left weight &times; left cell) + (center weight &times; center cell) + (right weight &times; right cell)</em>. That sum is then passed through a user chosen activation function. Finally the result of the function is then constrained between 0 and 1, by either clipping or moduloing, becoming the new cell. This repeats for every cell in every row, moving downwards.</p>
+
+  <h3 style="margin:16px 0 6px 0; font-size:12.5px; text-transform:uppercase; letter-spacing:0.5px;">- Spectral?</h3>
+  <p>A row of cells can describe a sound spectrum, where a cell's position stands for a frequency and its value stands for how loud that frequency is. The frequencies can range from tens of Hz at the beginning of the row to about 22,000Hz at the end. Read that way, each row becomes a short snippet of sound, and stitching those snippets together row by row turns the whole pattern into an audible clip.</p>
+
+  <h3 style="margin:16px 0 6px 0; font-size:12.5px; text-transform:uppercase; letter-spacing:0.5px;">- Neural?</h3>
+  <p>Every cell receives information from itself and its two neighbors, combines that information using a set of weights, and passes the result through an activation function before producing its new value. This is similar in structure to a tiny neural network, but the important difference is that the weights in this web-tool are not learned but are chosen by you, allowing for an explorative experience of a chaotic system.</p>
+
+  <h2 style="margin-top: 30px">Parameters</h2>
+  <h3 style="margin:16px 0 6px 0; font-size:12.5px; text-transform:uppercase; letter-spacing:0.5px;">- Grid</h3>
+  <p>Because every row is also a slice of sound, the grid's dimensions shape the audio as much as the image. <strong>width</strong> controls how many cells are in each row, and also how big each row's sound snippet is: wider rows make longer, more detailed grains of sound, while narrow rows stay short and chirpy. <strong>height</strong> controls how many rows get generated, and also how many of those grains get stitched together, so a taller grid makes a longer clip.</p>
+
+  <h3 style="margin:16px 0 6px 0; font-size:12.5px; text-transform:uppercase; letter-spacing:0.5px;">- Initialize</h3>
+  <p>Initialize sets what the first row looks like before the rule starts running.</p>
+  <ul style="margin:0 0 10px 0; padding-left:18px; font-size:12.5px; line-height:1.5;">
+    <li><strong>random uniform [0,1]:</strong> every cell starts at its own random value.</li>
+    <li><strong>random select (n cells):</strong> only <strong>n</strong> scattered cells start with a random value, the rest start at 0.</li>
+    <li><strong>seed:</strong> feeds the random generator, so the same seed always reproduces the same starting row. <strong>new</strong> picks a fresh one.</li>
+    <li><strong>impulse:</strong> there is a single lit cell at a specified <strong>position</strong> and everything else starts at 0.</li>
+  </ul>
+
+  <h3 style="margin:16px 0 6px 0; font-size:12.5px; text-transform:uppercase; letter-spacing:0.5px;">- Randomize</h3>
+  <p>The <strong>randomize</strong> button generates a fresh set of parameters for the modules below it all at once.</p>
+
+  <h3 style="margin:16px 0 6px 0; font-size:12.5px; text-transform:uppercase; letter-spacing:0.5px;">- Mask weights</h3>
+  <p>Set the weight values for the convolutional mask used in the first step of the rule set. Positive and negative values push the pattern in different directions, and small changes here can completely change its behavior. <strong>min</strong> and <strong>max</strong> only set the range the sliders are allowed to move in, not the weights themselves.</p>
+
+  <h3 style="margin:16px 0 6px 0; font-size:12.5px; text-transform:uppercase; letter-spacing:0.5px;">- Activation</h3>
+  <p>Once the mask produces its weighted sum, that value gets inserted into the chosen function (linear, sin, tanh, and others) before becoming the new cell. Some functions fold large values back down, some cut off sharply, and swapping between them is often the single biggest change you can make to the pattern. Whichever one is selected reveals its own sliders underneath, like <strong>slope</strong>, <strong>freq</strong>, <strong>phase</strong>, or <strong>mult</strong>, to tune its shape.</p>
+
+  <h3 style="margin:16px 0 6px 0; font-size:12.5px; text-transform:uppercase; letter-spacing:0.5px;">- Boundary &amp; Constraint</h3>
+  <p><strong>wrap</strong> controls how the edges of the rows are treated: 
+  <ul>
+    <li><strong>checked:</strong> the leftmost cell's left neighbor is the rightmost cell, and vice versa.</li> 
+    <li><strong>unchecked:</strong> anything past the edges count as a 0.</li> 
+  </ul>
+  <strong>mode</strong> controls how the activation function's output gets constrained to the range [0, 1]: 
+  <ul>
+    <li><strong>modulo:</strong> keeps only a value's fractional part</li>
+    <li><strong>clip:</strong> cuts off a value at 0 if it's less than 0, or 1 if it's greater than 1</li>
+  </ul>
+  </p>
+
+  <h3 style="margin:16px 0 6px 0; font-size:12.5px; text-transform:uppercase; letter-spacing:0.5px;">- Generate audio</h3>
+  <p>Once a pattern is rendered, the <strong>generate audio</strong> button turns it into sound using an inverse FFT with a sample rate of 44.1 KHz. The clip's natural length comes from the grid width and height. The <strong>time &times;</strong> multiplier then stretches or compresses that clip afterward: 1 keeps its natural length, 2 doubles it, 0.5 halves it, all without touching the underlying pattern. The sound clip can then be played and downloaded using the audio player.</p>
+
+  <h2 style="margin-top: 30px">Tips and credits</h2>
+
+  <p>Most parameter configurations are noisy and spectrally rich so be aware of that especially when wearing headphones. Other times an image can be blank except the first row. Despite this, there are surprising sweet spots you can find. A way to find an intriguing pattern is to just explore different configurations by changing the parameters. The randomize button can be useful for this but don’t rely on it to land on a pattern worth saving. You can also fine-tune parameters with the arrow keys on your keyboard.</p>
+  <p>This code was made by <a class="link" target="_blank" href="/index.html">Chris Ades</a> and was inspired by Emergent Garden's <a class="link" target="_blank" href="https://neuralpatterns.io/">neurarpatterns.io</a></p>
+
+</div>
+</div>
+
+<div class="layout">
+  <div id="sidebar">
+  <div class="row" style="margin-bottom: 15px;">
+  <h1 style="font-size: 15px; border-bottom:2px solid var(--line);">Neural Spectral Automata</h1>
+  <button style="margin-left: 0px;" type="button" id="helpBtn" title="What is this?">?</button>
+  </div>
+
+    <div class="row" style="margin:0 0 14px 0; gap:8px;">
+        <button type="button" class="secondary" id="savePresetBtn" style="flex:0 0 100px; margin-top:0;">Save preset</button>
+        <select id="loadPresetSelect">
+          <option id = "loadPresetVisual" value="" selected hidden>Load preset</option>
+          <option value="__custom__">Custom...</option>
+        </select>
+    </div>
+
+    <input type="file" id="loadPresetInput" accept="application/json,.json" style="display:none;">
+    <!-- <div class="hint" id="presetStatus"></div> -->
+
+    <fieldset>
+      <legend>Grid</legend>
+        <div class="row">
+        <label for="nInput">width</label>
+        <input type="number" id="nInput" min="128" max="2048" step="1" value="800">
+        <label for="mInput" style="margin-left:6px;">height</label>
+        <input type="number" id="mInput" min="10" max="10000" step="1" value="500">
+      </div>
+      <div class="hint"></div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Initialize</legend>
+      <div class="row">
+        <label for="initSelect"></label>
+        <select id="initSelect">
+          <option value="random" selected>random uniform [0,1]</option>
+          <option value="random_n">random select (n cells)</option>
+          <option value="impulse">impulse</option>
+        </select>
+      </div>
+      <div class="row" id="seedRow">
+        <label for="nCellsInput" id="nCellsLabel" style="display:none;">n</label>
+        <input type="number" id="nCellsInput" min="1" step="1" value="50" style="width:56px; display:none;">
+        <label for="seedInput" id="seedLabel">seed</label>
+        <input type="number" id="seedInput" step="1" value="1" style="width:70px">
+        <button type="button" class="secondary" id="randSeedBtn" style="width:auto;margin-top:0;">new</button>
+      </div>
+      <div class="row" id="impulsePosRow" style="display:none;">
+        <label for="impulsePosRange">position</label>
+        <input type="range" id="impulsePosRange" min="0" max="1" step="0.001" value="0.500">
+        <span class="readout" id="impulsePosVal">0.500</span>
+      </div>
+
+      <div class="hint" id="initHint"></div>
+    </fieldset>
+
+    <button type="button" id="randomizeBtn" style="height:20px; margin-bottom:14px; display: flex; justify-content: center; align-items: center;"><strong>Randomize</strong></button>
+
+    <fieldset>
+      <legend>Mask weights</legend>
+      <div class="row">
+        <label for="maskMinInput">min</label>
+        <input type="number" id="maskMinInput" step="0.1" value="-3" style="width:64px">
+        <label for="maskMaxInput" style="margin-left:6px;">max</label>
+        <input type="number" id="maskMaxInput" step="0.1" value="3" style="width:64px">
+      </div>
+      <div class="row">
+        <label for="wLeft">left</label>
+        <input type="range" id="wLeft" min="-3" max="3" step="0.001" value="0.600">
+        <span class="readout" id="wLeftVal">0.600</span>
+      </div>
+      <div class="row">
+        <label for="wCenter">center</label>
+        <input type="range" id="wCenter" min="-3" max="3" step="0.001" value="0.500">
+        <span class="readout" id="wCenterVal">0.500</span>
+      </div>
+      <div class="row">
+        <label for="wRight">right</label>
+        <input type="range" id="wRight" min="-3" max="3" step="0.001" value="-0.600">
+        <span class="readout" id="wRightVal">-0.600</span>
+      </div>
+    </fieldset>
+
+    <fieldset>
+      <legend>Activation</legend>
+      <div class="row">
+        <label for="activationSelect">function</label>
+        <select id="activationSelect">
+          <option value="linear" selected>linear</option>
+          <option value="sin">sin</option>
+          <option value="sin2">sin^2</option>
+          <option value="sin3">sin^3</option>
+          <option value="power">power</option>
+          <option value="tanh">tanh</option>
+          <option value="abs">abs</option>
+          <option value="x2">x^2</option>
+          <option value="x3">x^3</option>
+          <option value="inv_gaussian">inv_gaussian</option>
+        </select>
+      </div>
+
+      <div class="row subparam" data-for="linear">
+        <label for="slopeRange">slope</label>
+        <input type="range" id="slopeRange" min="-5" max="5" step="0.001" value="1.000">
+        <span class="readout" id="slopeVal">1.000</span>
+      </div>
+
+      <div class="row subparam" data-for="sin">
+        <label for="freqRange">freq</label>
+        <input type="range" id="freqRange" min="0" max="20" step="0.001" value="6.283">
+        <span class="readout" id="freqVal">6.283</span>
+      </div>
+
+      <div class="row subparam" data-for="sin">
+        <label for="phaseRange">phase</label>
+        <input type="range" id="phaseRange" min="-3.1416" max="3.1416" step="0.001" value="0.000">
+        <span class="readout" id="phaseVal">0.000</span>
+      </div>
+
+      <div class="row subparam" data-for="sin2">
+        <label for="sin2FreqRange">freq</label>
+        <input type="range" id="sin2FreqRange" min="0" max="20" step="0.001" value="6.283">
+        <span class="readout" id="sin2FreqVal">6.283</span>
+      </div>
+
+      <div class="row subparam" data-for="sin2">
+        <label for="sin2PhaseRange">phase</label>
+        <input type="range" id="sin2PhaseRange" min="-3.1416" max="3.1416" step="0.001" value="0.000">
+        <span class="readout" id="sin2PhaseVal">0.000</span>
+      </div>
+
+      <div class="row subparam" data-for="sin3">
+        <label for="sin3FreqRange">freq</label>
+        <input type="range" id="sin3FreqRange" min="0" max="20" step="0.001" value="6.283">
+        <span class="readout" id="sin3FreqVal">6.283</span>
+      </div>
+
+      <div class="row subparam" data-for="sin3">
+        <label for="sin3PhaseRange">phase</label>
+        <input type="range" id="sin3PhaseRange" min="-3.1416" max="3.1416" step="0.001" value="0.000">
+        <span class="readout" id="sin3PhaseVal">0.000</span>
+      </div>
+
+      <div class="row subparam" data-for="power">
+        <label for="pRange">p</label>
+        <input type="range" id="pRange" min="0.1" max="6" step="0.001" value="2.000">
+        <span class="readout" id="pVal">2.000</span>
+      </div>
+
+      <div class="row subparam" data-for="tanh">
+        <label for="tanhMultRange">mult</label>
+        <input type="range" id="tanhMultRange" min="0.1" max="5" step="0.001" value="1.000">
+        <span class="readout" id="tanhMultVal">1.000</span>
+      </div>
+
+      <div class="row subparam" data-for="abs">
+        <label for="absSlopeRange">slope</label>
+        <input type="range" id="absSlopeRange" min="-5" max="5" step="0.001" value="1.000">
+        <span class="readout" id="absSlopeVal">1.000</span>
+      </div>
+
+      <div class="row subparam" data-for="x2">
+        <label for="x2CoefRange">coef</label>
+        <input type="range" id="x2CoefRange" min="-5" max="5" step="0.001" value="1.000">
+        <span class="readout" id="x2CoefVal">1.000</span>
+      </div>
+
+      <div class="row subparam" data-for="x3">
+        <label for="x3CoefRange">coef</label>
+        <input type="range" id="x3CoefRange" min="-5" max="5" step="0.001" value="1.000">
+        <span class="readout" id="x3CoefVal">1.000</span>
+      </div>
+
+      <div class="row subparam" data-for="inv_gaussian">
+        <label for="muRange">mu</label>
+        <input type="range" id="muRange" min="-2" max="2" step="0.001" value="0.000">
+        <span class="readout" id="muVal">0.000</span>
+      </div>
+      <div class="row subparam" data-for="inv_gaussian">
+        <label for="sigmaRange">sigma</label>
+        <input type="range" id="sigmaRange" min="0.05" max="3" step="0.001" value="1.000">
+        <span class="readout" id="sigmaVal">1.000</span>
+      </div>
+
+    </fieldset>
+
+    <fieldset>
+      <legend>Boundary &amp; constraint</legend>
+      <div class="row checkrow">
+        <input type="checkbox" id="wrapChk" checked>
+        <label for="wrapChk">wrap</label>
+      </div>
+      <div class="row">
+        <label for="modeSelect">mode</label>
+        <select id="modeSelect">
+          <option value="mod" selected>modulo</option>
+          <option value="clip">clip</option>
+        </select>
+      </div>
+    </fieldset>
+
+    <fieldset style = "display: none;">
+      <legend>Sonification</legend>
+      <div class="row">
+        <label for="hopScaleRange">hop scale</label>
+        <input type="range" id="hopScaleRange" min="0.05" max="1" step="0.01" value="0.50">
+        <span class="readout" id="hopScaleVal">0.50</span>
+      </div>
+      <div class="row checkrow">
+        <input type="checkbox" id="normalizeChk" checked>
+        <label for="normalizeChk">normalize to peak 0.95</label>
+      </div>
+      <div class="row">
+        <label for="sampleRateInput">sample rate</label>
+        <input type="number" id="sampleRateInput" min="1000" max="192000" step="1" value="44100" style="width:100px">
+      </div>
+      <div class="row">
+        <label for="rateFactorSelect">rate ×/÷</label>
+        <select id="rateFactorSelect">
+          <option value="0.125">÷8</option>
+          <option value="0.25">÷4</option>
+          <option value="0.5">÷2</option>
+          <option value="1" selected>×1</option>
+          <option value="2">×2</option>
+          <option value="4">×4</option>
+          <option value="8">×8</option>
+        </select>
+      </div>
+      <div class="hint" id="audioInfoHint">block=— hop=— duration=—</div>
+      <button type="button" class="secondary" id="downloadWavBtn" disabled>Download WAV</button>
+      <div class="hint" id="audioStatus">not generated yet</div>
+    </fieldset>
+
+    <fieldset style = "display: none;">
+      <legend>Display</legend>
+      <div class="row">
+        <label for="cmapSelect">colormap</label>
+        <select id="cmapSelect">
+          <option value="binary" selected>binary</option>
+          <option value="gray">gray</option>
+        </select>
+      </div>
+    </fieldset>
+
+  </div>
+
+  <div id="main">
+    <input type="text" id="titleInput" value="untitled" size="40">
+
+    <div class="row" style="margin-bottom: 10px;">
+      <button type="button" class="secondary" id="genAudioBtn" style="margin-right:5px; margin-bottom:7px; flex-shrink:0; width:auto;">Generate audio</button>
+      <label for="lengthMultInput" style="margin-right:4px;">time ×</label>
+      <input type="number" id="lengthMultInput" min="0.00" max="1000" step="0.1" value="1" style="width:52px; margin-right:10px; flex:0 0 auto;">
+      <audio id="audioPlayer" controls style="flex-shrink: 0; margin-top:14px; margin-bottom:14px; width:360px; height:32px;"></audio>
+    </div>
+    <div id="canvasWrap">
+      <canvas id="caCanvas"></canvas>
+    </div>
+    <div id="stats">—</div>
+    <button type="button" class="secondary" id="saveBtn" style="flex-shrink: 0; margin-top:14px; margin-bottom:14px; width:360px; height:32px;">Download Image (full resolution)</button>
+  </div>
+</div>
+
+<script src="js/main.js"></script>
+
+</body>
+</html>

@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "title": "rythmic_preset_1",
+  "mask": [
+    0.958,
+    -0.003,
+    0.041
+  ],
+  "maskRange": [
+    -1,
+    1
+  ],
+  "N": 1024,
+  "M": 600,
+  "wrap": false,
+  "mode": "mod",
+  "activation": "tanh",
+  "activationParams": {
+    "slope": 0.391,
+    "freq": 9.023,
+    "phase": -1.6966,
+    "sin2Freq": 17.589,
+    "sin2Phase": 0.3214,
+    "sin3Freq": 0.774,
+    "sin3Phase": -2.6516,
+    "p": 0.519,
+    "tanhMult": 0.956,
+    "absSlope": 0.221,
+    "x2Coef": -4.976,
+    "x3Coef": -3.928,
+    "mu": -1.445,
+    "sigma": 1.229
+  },
+  "init": "random",
+  "seed": 66354,
+  "impulsePos": 0.5,
+  "nCells": 50,
+  "cmap": "binary",
+  "sonification": {
+    "hopScale": 0.5,
+    "normalize": true,
+    "sampleRate": 44100,
+    "rateFactor": 1,
+    "lengthMultiplier": 1
+  }
+}

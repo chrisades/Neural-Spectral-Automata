@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "title": "x2-slant_srpnsk",
+  "mask": [
+    -1.168,
+    1.365,
+    -0.218
+  ],
+  "maskRange": [
+    -3,
+    3
+  ],
+  "N": 512,
+  "M": 512,
+  "wrap": false,
+  "mode": "clip",
+  "activation": "x2",
+  "activationParams": {
+    "slope": -1.117,
+    "freq": 6.141,
+    "phase": 0.0554,
+    "sin2Freq": 1.131,
+    "sin2Phase": -2.2176,
+    "sin3Freq": 1.282,
+    "sin3Phase": -1.2236,
+    "p": 4.201,
+    "tanhMult": 2.561,
+    "absSlope": -0.899,
+    "x2Coef": 2.652,
+    "x3Coef": 0.992,
+    "mu": -1.533,
+    "sigma": 3
+  },
+  "init": "impulse",
+  "seed": 122717,
+  "impulsePos": 0,
+  "nCells": 2,
+  "cmap": "binary",
+  "sonification": {
+    "hopScale": 0.5,
+    "normalize": true,
+    "sampleRate": 44100,
+    "rateFactor": 1,
+    "lengthMultiplier": 1
+  }
+}

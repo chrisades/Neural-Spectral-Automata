@@ -1,0 +1,46 @@
+{
+  "version": 1,
+  "title": "preset_11",
+  "mask": [
+    -0.903,
+    -0.284,
+    -0.904
+  ],
+  "maskRange": [
+    -1,
+    1
+  ],
+  "N": 512,
+  "M": 512,
+  "wrap": true,
+  "mode": "mod",
+  "activation": "power",
+  "activationParams": {
+    "slope": 1,
+    "freq": 7.569,
+    "phase": 0.4774,
+    "sin2Freq": 0.706,
+    "sin2Phase": -0.0746,
+    "sin3Freq": 16.222,
+    "sin3Phase": 1.3274,
+    "p": 0.297,
+    "tanhMult": 1,
+    "absSlope": 0.994,
+    "x2Coef": 2.708,
+    "x3Coef": -1.686,
+    "mu": -0.914,
+    "sigma": 1.79
+  },
+  "init": "random",
+  "seed": 419597,
+  "impulsePos": 0.5,
+  "nCells": 4,
+  "cmap": "binary",
+  "sonification": {
+    "hopScale": 0.5,
+    "normalize": true,
+    "sampleRate": 44100,
+    "rateFactor": 1,
+    "lengthMultiplier": 1
+  }
+}
