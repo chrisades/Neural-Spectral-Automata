@@ -3,6 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <title>Neural Spectral Automata</title>
+  <link rel="icon" type="image/png" href="assets/favicon.png">
   <link rel="stylesheet" href="css/style.css">
 </head>
 
@@ -21,7 +22,7 @@
   <p>Neural Spectral Automata is a web-tool that can be used to create 1-dimensional neural <a class="link" target="blank" href="https://en.wikipedia.org/wiki/Cellular_automaton">cellular automata</a> that are mapped to sound. An image is generated row by row using a simple set of rules, and the pixels in that image describe an evolving frequency spectrum over time. Although the rules are simple, surprisingly complex and <a class="link" target="_blank" href="https://en.wikipedia.org/wiki/Chaos_theory">chaotic</a> patterns emerge from them.</p>
 
   <h3 style="margin:16px 0 6px 0; font-size:12.5px; text-transform:uppercase; letter-spacing:0.5px;">- Simple Rules</h3>
-  <p>It starts with a top row of cells, each valued from 0 to 1 (white to black). To grow the row underneath it, every cell goes through the same three steps: a <strong>mask convolution</strong>, an <strong>activation function</strong>, and a <strong>constraint</strong>. The mask is a row of three weights that slide over the cell being processed (center) and its two closest neighbors (left and right), which are multiplied by their matching weights and added together: <em>(left weight &times; left cell) + (center weight &times; center cell) + (right weight &times; right cell)</em>. That sum is then passed through a user chosen activation function. Finally the result of the function is then constrained between 0 and 1, by either clipping or moduloing, becoming the new cell. This repeats for every cell in every row, moving downwards.</p>
+  <p>It starts with a top row of cells, each valued from 0 to 1 (white to black). To grow the row underneath it, every cell goes through the same three steps: a <strong>mask convolution</strong>, an <strong>activation function</strong>, and a <strong>constraint</strong>. The mask is a row of three weights that slide over the cell being processed (center) and its two closest neighbors (left and right), which are multiplied by their matching weights and added together: <em>(left weight &times; left cell) + (center weight &times; center cell) + (right weight &times; right cell)</em>. That sum is then passed through a user chosen activation function. Finally the result of the function is then constrained so the value lands somewhere from 0 to 1, becoming the new cell. This repeats for every cell in every row, moving downwards.</p>
 
   <h3 style="margin:16px 0 6px 0; font-size:12.5px; text-transform:uppercase; letter-spacing:0.5px;">- Spectral?</h3>
   <p>A row of cells can describe a sound spectrum, where a cell's position stands for a frequency and its value stands for how loud that frequency is. The frequencies can range from tens of Hz at the beginning of the row to about 22,000Hz at the end. Read that way, each row becomes a short snippet of sound, and stitching those snippets together row by row turns the whole pattern into an audible clip.</p>
@@ -69,8 +70,8 @@
 
   <h2 style="margin-top: 30px">Tips and credits</h2>
 
-  <p>Most parameter configurations are noisy and spectrally rich so be aware of that especially when wearing headphones. Other times an image can be blank except the first row. Despite this, there are surprising sweet spots you can find. A way to find an intriguing pattern is to just explore different configurations by changing the parameters. The randomize button can be useful for this but don’t rely on it to land on a pattern worth saving. You can also fine-tune parameters with the arrow keys on your keyboard.</p>
-  <p>This code was made by <a class="link" target="_blank" href="/index.html">Chris Ades</a> and was inspired by Emergent Garden's <a class="link" target="_blank" href="https://neuralpatterns.io/">neurarpatterns.io</a></p>
+  <p>Most parameter configurations are noisy and spectrally rich so be aware of that especially when wearing headphones. Other times an image can be blank except the first row. Despite this, there are surprising sweet spots you can find. To look for intriguing patterns is to just explore different configurations by changing the parameters. The randomize button can be a useful starting point but expect it to land on noise or a blank image more often than not. For fine-tuning parameters, use the arrow keys on your keyboard.</p>
+  <p><a class="link" target="_blank" href="https://github.com/chrisades/Neural-Spectral-Automata">This code</a> was made by <a class="link" target="_blank" href="/index.html">Chris Ades</a> and was inspired by Emergent Garden's <a class="link" target="_blank" href="https://neuralpatterns.io/">neurarpatterns.io</a></p>
 
 </div>
 </div>
@@ -136,24 +137,24 @@
       <legend>Mask weights</legend>
       <div class="row">
         <label for="maskMinInput">min</label>
-        <input type="number" id="maskMinInput" step="0.1" value="-3" style="width:64px">
+        <input type="number" id="maskMinInput" step="0.1" value="-1" style="width:64px">
         <label for="maskMaxInput" style="margin-left:6px;">max</label>
-        <input type="number" id="maskMaxInput" step="0.1" value="3" style="width:64px">
+        <input type="number" id="maskMaxInput" step="0.1" value="1" style="width:64px">
       </div>
       <div class="row">
         <label for="wLeft">left</label>
-        <input type="range" id="wLeft" min="-3" max="3" step="0.001" value="0.600">
-        <span class="readout" id="wLeftVal">0.600</span>
+        <input type="range" id="wLeft" min="-1" max="1" step="0.001" value="-0.120">
+        <span class="readout" id="wLeftVal">-0.120</span>
       </div>
       <div class="row">
         <label for="wCenter">center</label>
-        <input type="range" id="wCenter" min="-3" max="3" step="0.001" value="0.500">
-        <span class="readout" id="wCenterVal">0.500</span>
+        <input type="range" id="wCenter" min="-1" max="1" step="0.001" value="0.003">
+        <span class="readout" id="wCenterVal">0.003</span>
       </div>
       <div class="row">
         <label for="wRight">right</label>
-        <input type="range" id="wRight" min="-3" max="3" step="0.001" value="-0.600">
-        <span class="readout" id="wRightVal">-0.600</span>
+        <input type="range" id="wRight" min="-1" max="1" step="0.001" value="-0.443">
+        <span class="readout" id="wRightVal">-0.443</span>
       </div>
     </fieldset>
 
@@ -177,8 +178,8 @@
 
       <div class="row subparam" data-for="linear">
         <label for="slopeRange">slope</label>
-        <input type="range" id="slopeRange" min="-5" max="5" step="0.001" value="1.000">
-        <span class="readout" id="slopeVal">1.000</span>
+        <input type="range" id="slopeRange" min="-5" max="5" step="0.001" value="-1.796">
+        <span class="readout" id="slopeVal">-1.796</span>
       </div>
 
       <div class="row subparam" data-for="sin">
@@ -303,7 +304,6 @@
         </select>
       </div>
       <div class="hint" id="audioInfoHint">block=— hop=— duration=—</div>
-      <button type="button" class="secondary" id="downloadWavBtn" disabled>Download WAV</button>
       <div class="hint" id="audioStatus">not generated yet</div>
     </fieldset>
 

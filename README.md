@@ -1,6 +1,6 @@
 # Neural Spectral Automata
 
-This repo contains the source code for [Neural Spectral Automata](https://chrisades.github.io/Neural-Spectral-Automata), A web tool for creating 1D cellular automata and turning them into sound. Each row of the automaton is generated using a simple neural-style rule (convolution → activation → constraint), and the resulting image is read as an evolving sound spectrum, turning chaotic visual patterns into audio.
+This repo contains the source code for [Neural Spectral Automata](https://chrisades.github.io/Neural-Spectral-Automata), a web tool for creating 1D cellular automata and turning them into sound. Each row of the automaton is generated using a simple neural-style rule (convolution → activation → constraint), and the resulting image is read as an evolving sound spectrum, turning chaotic visual patterns into audio.
 
 ## Features
 

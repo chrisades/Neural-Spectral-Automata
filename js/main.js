@@ -1,6 +1,5 @@
 (function(){
 
-  // ---------- seeded RNG ----------
   function mulberry32(seed){
     let t = seed >>> 0;
     return function(){
@@ -11,7 +10,6 @@
     };
   }
 
-  // ---------- activation ----------
   function applyActivation(s, activation, p){
     switch(activation){
       case 'linear': {
@@ -83,7 +81,6 @@
     }
   }
 
-  // ---------- core generator (mirrors generate_continuous_ca) ----------
   function generateContinuousCA(cfg){
     const {N, M, seed, wrap, mode, activation, activationParams, mask, init, impulsePos, nCells} = cfg;
 
@@ -195,7 +192,6 @@
     return {n, m, chirpRe, chirpIm, BwRe, BwIm, aRe:new Float64Array(m), aIm:new Float64Array(m)};
   }
 
-  // Forward DFT of a real (zero-imaginary), length-n signal via Bluestein.
   function bluesteinForwardReal(plan, xRe, outRe, outIm){
     const {n, m, chirpRe, chirpIm, BwRe, BwIm, aRe, aIm} = plan;
     aRe.fill(0); aIm.fill(0);
@@ -223,9 +219,8 @@
     return w;
   }
 
-
   function buildHfAttenuationCurve(N){
-    const CUTOFF_FRACTION = 0.35; // fraction of Nyquist where the rolloff's -3dB point sits
+    const CUTOFF_FRACTION = 0.45; // fraction of Nyquist where the rolloff's -3dB point sits
     const ORDER = 3;              // filter order: higher = steeper rolloff above cutoff
     const curve = new Float64Array(N);
     for (let k=0;k<N;k++){
@@ -237,13 +232,13 @@
   }
 
   function caToAudio(X, N, M, hopScale, normalize){
-    const n = 2*(N-1);              // block_size, same as numpy's default irfft output length
+    const n = 2*(N-1);             
     const hop = Math.max(1, Math.floor(n*hopScale));
     const totalLen = hop*(M-1) + n;
     const audio = new Float64Array(totalLen);
     const window = hanningWindow(n);
     const plan = makeBluesteinPlan(n);
-    const hfAtten = buildHfAttenuationCurve(N); // fixed per-bin taper, same for every row
+    const hfAtten = buildHfAttenuationCurve(N); 
     const full = new Float64Array(n);   // Hermitian-symmetric real spectrum for this row
     const outRe = new Float64Array(n);
     const outIm = new Float64Array(n);
@@ -343,7 +338,6 @@
   const rateFactorSelect = $('rateFactorSelect');
   const durationInput = $('lengthMultInput');
   const genAudioBtn = $('genAudioBtn');
-  const downloadWavBtn = $('downloadWavBtn');
   const audioInfoHint = $('audioInfoHint');
   const audioStatus = $('audioStatus');
   const audioPlayer = $('audioPlayer');
@@ -352,7 +346,6 @@
   const loadPresetInput = $('loadPresetInput');
   const PRESET_CUSTOM_VALUE = '__custom__';
   const PRESETS_DIR = 'assets/presets/';
-  // const presetStatus = $('presetStatus');
 
   function syncReadout(rangeEl, spanEl, decimals){
     spanEl.textContent = parseFloat(rangeEl.value).toFixed(decimals === undefined ? 2 : decimals);
@@ -375,7 +368,7 @@
     let hi = parseFloat(maskMaxInput.value);
     if (!Number.isFinite(lo)) lo = -3;
     if (!Number.isFinite(hi)) hi = 3;
-    if (hi <= lo) hi = lo + 0.001; // keep a valid, non-zero range
+    if (hi <= lo) hi = lo + 0.001;
     maskMinInput.value = lo;
     maskMaxInput.value = hi;
     MASK_RANGES.forEach(r => {
@@ -418,11 +411,10 @@
   updateInitUI();
   titleInput.addEventListener('input', () => { statsEl.dataset.dirtyTitle = '1'; });
 
-  // ---------- audio state ----------
   let lastX = null, lastN = 0, lastM = 0;
   let lastFullResCanvas = null;
-  let audioSamples = null;      // Float64Array of raw waveform, independent of playback rate
-  let audioDirty = true;        // true when CA pattern / hop scale / normalize changed since last audio render
+  let audioSamples = null;     
+  let audioDirty = true;        
   let audioBlobUrl = null;
 
   function markAudioDirty(){
@@ -443,9 +435,6 @@
     return clamped;
   }
 
-  // Linearly resamples `input` to exactly `outLen` samples, so the final
-  // clip length is set purely by the requested duration and sample rate —
-  // never by M (row count), which only controls how much CA data feeds in.
   function resampleToLength(input, outLen){
     const inLen = input.length;
     const out = new Float64Array(outLen);
@@ -476,7 +465,6 @@
     if (audioBlobUrl) URL.revokeObjectURL(audioBlobUrl);
     audioBlobUrl = URL.createObjectURL(blob);
     audioPlayer.src = audioBlobUrl;
-    downloadWavBtn.disabled = false;
     const dur = audioSamples.length / rate;
     audioStatus.textContent = 'ready — ' + rate + ' Hz, ' + dur.toFixed(2) + 's';
   }
@@ -489,16 +477,13 @@
     if (!lastX){ audioStatus.textContent = 'generate a pattern first'; return; }
     genAudioBtn.disabled = true;
     genAudioBtn.textContent = 'Computing…';
-    // yield a frame so the "Computing…" state paints before the heavy loop runs
+
     setTimeout(() => {
       const hopScale = parseFloat(hopScaleRange.value);
       const normalize = normalizeChk.checked;
       const t0 = performance.now();
       let {audio, blockSize, hopSize} = caToAudio(lastX, lastN, lastM, hopScale, normalize);
 
-      // Multiplier scales the natural (M/hop-scale-derived) length, so
-      // 1 = normal length, 2 = double, 0.5 = half — matching what a user
-      // expects "multiplier" to mean.
       const rawSamples = audio.length;
       const mult = targetLengthMultiplier();
       const targetLen = Math.max(1, Math.round(mult * rawSamples));
@@ -525,16 +510,6 @@
   }
   genAudioBtn.addEventListener('click', generateAudio);
 
-  downloadWavBtn.addEventListener('click', () => {
-    if (!audioBlobUrl) return;
-    const name = (titleInput.value || 'ca1d').trim().replace(/[^a-z0-9_-]+/gi,'_').toLowerCase() || 'ca1d';
-    const link = document.createElement('a');
-    link.href = audioBlobUrl;
-    link.download = name + '.wav';
-    link.click();
-  });
-
-  // ---------- presets (save/load as JSON) ----------
   function collectPreset(){
     const cfg = readParams();
     return {
@@ -573,7 +548,6 @@
     link.download = name + '.json';
     link.click();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-    // presetStatus.textContent = 'saved ' + name + '.json';
   }
 
   function deriveNameFromFilename(filename){
@@ -644,7 +618,6 @@
     refreshCselTriggers();
     generate();
     generateAudio();
-    // presetStatus.textContent = 'loaded' + (resolvedTitle ? (': ' + resolvedTitle) : '');
   }
 
   function loadPresetFile(file){
@@ -653,10 +626,8 @@
       try {
         applyPreset(JSON.parse(reader.result), file.name);
       } catch (err){
-        // presetStatus.textContent = 'error: ' + err.message;
       }
     };
-    // reader.onerror = () => { presetStatus.textContent = 'error reading file'; };
     reader.readAsText(file);
   }
 
@@ -723,7 +694,7 @@
     } else if (val) {
       loadPresetFromFolder(val);
     }
-    loadPresetSelect.value = ''; // snap back to the "Load preset" resting label
+    loadPresetSelect.value = '';
   });
 
   loadPresetInput.addEventListener('change', (e) => {
@@ -734,24 +705,12 @@
 
   populatePresetSelect();
 
-  // ---------- custom dropdowns ----------
-  // Replaces the native <select> popup with a hand-built trigger + option
-  // list so hover color is 100% CSS-controlled. (On several platforms —
-  // notably Chrome/Edge on Windows — the open option list is drawn by the
-  // OS itself and ignores background/box-shadow CSS on <option>, which is
-  // why the hover highlight kept showing system blue no matter what.) The
-  // original <select> is kept in the DOM, hidden, purely to hold the
-  // value and fire 'change' events so none of the app logic above has to
-  // change.
   const openCselPanels = [];
   const cselRegistry = [];
   function closeAllCsel(except){
     openCselPanels.slice().forEach(p => { if (p !== except) p.close(); });
   }
-  // Call after anything sets a select's .value directly (bypassing our
-  // option-click handler, which is the only place that dispatches
-  // 'change') so the visible trigger label catches up — e.g. after
-  // loading a preset or hitting Randomize.
+
   function refreshCselTriggers(){
     cselRegistry.forEach(r => r.sync());
   }
@@ -781,7 +740,7 @@
     function buildPanel(){
       panel.innerHTML = '';
       Array.from(selectEl.options).forEach(opt => {
-        if (opt.hidden) return; // e.g. the "Load preset" placeholder
+        if (opt.hidden) return;
         const item = document.createElement('div');
         item.className = 'csel-option' +
           (opt.value === selectEl.value ? ' csel-selected' : '') +
@@ -940,7 +899,6 @@
       },
       mask: [parseFloat(wLeft.value), parseFloat(wCenter.value), parseFloat(wRight.value)],
       cmap: cmapSelect.value,
-      // cmap: "binary",
       init: initSelect.value,
       impulsePos: parseFloat(impulsePosRange.value),
       nCells: Math.min(N, Math.max(1, parseInt(nCellsInput.value, 10) || 1))
@@ -962,7 +920,7 @@
       data[px] = gray; data[px+1] = gray; data[px+2] = gray; data[px+3] = 255;
     }
     offCtx.putImageData(imgData, 0, 0);
-    lastFullResCanvas = off; // exact 1 pixel-per-cell canvas, kept for lossless export
+    lastFullResCanvas = off;
 
     const maxBox = 600;
     const scale = Math.max(1, Math.min(maxBox / N, maxBox / M));
