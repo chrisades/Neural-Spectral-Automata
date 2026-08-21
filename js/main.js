@@ -220,7 +220,8 @@
   }
 
   function buildHfAttenuationCurve(N){
-    const CUTOFF_FRACTION = 0.45; // fraction of Nyquist where the rolloff's -3dB point sits
+    const minCutoff = 0.005;
+    const CUTOFF_FRACTION = minCutoff * Math.pow(1/minCutoff, parseFloat(lowpassRange.value)); // fraction of Nyquist where the rolloff's -3dB point sits
     const ORDER = 3;              // filter order: higher = steeper rolloff above cutoff
     const curve = new Float64Array(N);
     for (let k=0;k<N;k++){
@@ -338,6 +339,7 @@
   const rateFactorSelect = $('rateFactorSelect');
   const durationInput = $('lengthMultInput');
   const genAudioBtn = $('genAudioBtn');
+  const lowpassRange = $('lowpassRange'), lowpassVal = $('lowpassVal');
   const audioInfoHint = $('audioInfoHint');
   const audioStatus = $('audioStatus');
   const audioPlayer = $('audioPlayer');
@@ -357,7 +359,8 @@
    [pRange,pVal],
    [tanhMultRange,tanhMultVal],[absSlopeRange,absSlopeVal],
    [x2CoefRange,x2CoefVal],[x3CoefRange,x3CoefVal],
-   [muRange,muVal],[sigmaRange,sigmaVal],[impulsePosRange,impulsePosVal]];
+   [muRange,muVal],[sigmaRange,sigmaVal],[impulsePosRange,impulsePosVal],
+   [lowpassRange, lowpassVal]];
   PRECISE_RANGES.forEach(([r,s]) => { syncReadout(r,s,3); });
   syncReadout(hopScaleRange, hopScaleVal);
   PRECISE_RANGES.forEach(([r,s]) => { r.addEventListener('input', () => { syncReadout(r,s,3); scheduleGenerate(); }); });
@@ -533,7 +536,8 @@
         normalize: normalizeChk.checked,
         sampleRate: parseInt(sampleRateInput.value, 10) || 44100,
         rateFactor: parseFloat(rateFactorSelect.value),
-        lengthMultiplier: parseFloat(durationInput.value)
+        lengthMultiplier: parseFloat(durationInput.value),
+        lowpass: parseFloat(lowpassRange.value)
       }
     };
   }
@@ -609,6 +613,7 @@
       rateFactorSelect.value = String(son.rateFactor);
     }
     if (Number.isFinite(son.lengthMultiplier)) durationInput.value = son.lengthMultiplier;
+    if (Number.isFinite(son.lowpass)) lowpassRange.value = son.lowpass;
 
     PRECISE_RANGES.forEach(([r,s]) => syncReadout(r,s,3));
     syncReadout(hopScaleRange, hopScaleVal);
@@ -901,7 +906,8 @@
       cmap: cmapSelect.value,
       init: initSelect.value,
       impulsePos: parseFloat(impulsePosRange.value),
-      nCells: Math.min(N, Math.max(1, parseInt(nCellsInput.value, 10) || 1))
+      nCells: Math.min(N, Math.max(1, parseInt(nCellsInput.value, 10) || 1)),
+      lowpass: parseFloat(lowpassRange.value)
     };
   }
 

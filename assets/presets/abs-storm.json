@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "title": "preset_5",
+  "title": "abs-storm",
   "mask": [
     -0.203,
     -1.175,
@@ -41,6 +41,7 @@
     "normalize": true,
     "sampleRate": 44100,
     "rateFactor": 1,
-    "lengthMultiplier": 1
+    "lengthMultiplier": 1,
+    "lowpass": 0.65
   }
 }

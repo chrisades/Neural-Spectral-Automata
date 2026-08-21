@@ -66,11 +66,15 @@
   </p>
 
   <h3 style="margin:16px 0 6px 0; font-size:12.5px; text-transform:uppercase; letter-spacing:0.5px;">- Generate audio</h3>
-  <p>Once a pattern is rendered, the <strong>generate audio</strong> button turns it into sound using an inverse FFT with a sample rate of 44.1 KHz. The clip's natural length comes from the grid width and height. The <strong>time &times;</strong> multiplier then stretches or compresses that clip afterward: 1 keeps its natural length, 2 doubles it, 0.5 halves it, all without touching the underlying pattern. The sound clip can then be played and downloaded using the audio player.</p>
+  <p>Once a pattern is rendered, the <strong>generate audio</strong> button turns it into sound using an inverse FFT with a sample rate of 44.1 KHz. The clip's natural length comes from the grid width and height. The <strong>time &times;</strong> multiplier then stretches or compresses that clip afterward: 1 keeps its natural length, 2 doubles it, 0.5 halves it, all without touching the underlying pattern. There's also a <strong>lowpass</strong> slider that allows you to cutoff harsh high frequencies, if needed. The sound clip can then be played and downloaded using the audio player.</p>
+  
+  <h2 style="margin-top: 30px">Saving and Loading Presets</h2>
+  <p>If you found a configuration that you'd like to share or come back to, click <strong>Save Preset</strong> to store it on your device. Your saved configuration can be loaded from your file system by going to <strong>Load Preset</strong> and clicking <strong>Custom...</strong></p>
+  <p>Included are some built-in presets discovered while testing each activation function, which you can fiddle around with.</p>
 
   <h2 style="margin-top: 30px">Tips and credits</h2>
 
-  <p>Most parameter configurations are noisy and spectrally rich so be aware of that especially when wearing headphones. Other times an image can be blank except the first row. Despite this, there are surprising sweet spots you can find. To look for intriguing patterns is to just explore different configurations by changing the parameters. The randomize button can be a useful starting point but expect it to land on noise or a blank image more often than not. For fine-tuning parameters, use the arrow keys on your keyboard.</p>
+  <p>Most parameter configurations are noisy and spectrally rich so be aware of that, especially when wearing headphones. Other times an image can be blank except the first row. Despite this, there are surprising sweet spots you can find, and you can use the arrow keys on your keyboard to finely tune them. The randomize button can be a useful starting point but expect it to land on noise or a blank image more often than not.</p>
   <p><a class="link" target="_blank" href="https://github.com/chrisades/Neural-Spectral-Automata">This code</a> was made by <a class="link" target="_blank" href="/index.html">Chris Ades</a> and was inspired by Emergent Garden's <a class="link" target="_blank" href="https://neuralpatterns.io/">neurarpatterns.io</a></p>
 
 </div>
@@ -327,8 +331,20 @@
       <button type="button" class="secondary" id="genAudioBtn" style="margin-right:5px; margin-bottom:7px; flex-shrink:0; width:auto;">Generate audio</button>
       <label for="lengthMultInput" style="margin-right:4px;">time ×</label>
       <input type="number" id="lengthMultInput" min="0.00" max="1000" step="0.1" value="1" style="width:52px; margin-right:10px; flex:0 0 auto;">
-      <audio id="audioPlayer" controls style="flex-shrink: 0; margin-top:14px; margin-bottom:14px; width:360px; height:32px;"></audio>
+      <div class="row" style="margin-bottom: 20px;">
+
+        <div   style = "display: flex; flex-direction: column; align-items: center;">
+          <div class="row" style="margin-bottom: 0px;">
+            <label for="lowpassRange">Low Pass</label>
+            <span class="readout" id="lowpassVal">0.5</span>
+          </div>
+          <input type="range" id="lowpassRange" min="0" max="1" step="0.001" value="0.5">
+
+        </div>
+      </div>
+      <audio id="audioPlayer" controls style="flex-shrink: 0; margin-left: 10px; margin-top:14px; margin-bottom:14px; width:360px; height:32px;"></audio>
     </div>
+
     <div id="canvasWrap">
       <canvas id="caCanvas"></canvas>
     </div>

@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "title": "shadow rocks",
+  "title": "lin-crumbs",
   "mask": [
     0.568,
     -0.038,
@@ -41,6 +41,7 @@
     "normalize": true,
     "sampleRate": 44100,
     "rateFactor": 1,
-    "lengthMultiplier": 1
+    "lengthMultiplier": 1,
+    "lowpass": 0.65
   }
 }

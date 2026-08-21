@@ -41,6 +41,7 @@
     "normalize": true,
     "sampleRate": 44100,
     "rateFactor": 1,
-    "lengthMultiplier": 1
+    "lengthMultiplier": 1,
+    "lowpass": 0.65
   }
 }
